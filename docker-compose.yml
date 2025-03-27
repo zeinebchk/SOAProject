@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  api-gateway-services:
+    build: ./api-gateway-services
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    depends_on:
+      - mongo-db
+      - auth-services
+      - users-services
+    volumes:
+      - ./api-gateway-services:/app
+      - /app/node_modules
+    command: npm run start:dev  
+    networks:
+      - telecom-network
+    restart: always
+
+  users-services:
+    build: ./users-services
+    ports:
+      - "50053:50053"
+    depends_on:
+      - mongo-db
+    volumes:
+      - ./users-services:/app
+      - /app/node_modules
+    command: npm run start:dev
+    environment:
+      - MONGO_URI=mongodb://mongo-db:27017/userDB
+    networks:
+      - telecom-network
+    restart: always
+
+  auth-services:
+    build: ./auth-services
+    ports:
+      - "50052:50052"
+    depends_on:
+      - mongo-db
+    volumes:
+      - ./auth-services:/app
+      - /app/node_modules
+    command: npm run start:dev
+    environment:
+      - MONGO_URI=mongodb://mongo-db:27017/userDB
+    networks:
+      - telecom-network
+    restart: always
+
+  mongo-db:
+    image: mongo:6
+    container_name: mongo-db
+    restart: always
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - telecom-network
+
+networks:
+  telecom-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
