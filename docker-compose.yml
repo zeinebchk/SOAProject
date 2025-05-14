@@ -51,6 +51,28 @@ services:
       - telecom-network
     restart: always
 
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports: 
+      - "2181:2181"
+    networks:
+      - telecom-network
+    restart: always
+
+  kafka:
+    image: wurstmeister/kafka
+    ports: 
+      - "9092:9092"
+    environment:   
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+    networks:
+      - telecom-network
+    restart: always
+
   mongo-db:
     image: mongo:6
     container_name: mongo-db
